@@ -34,7 +34,7 @@ Route::group([
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 
     Route::get('/projects/{project}/invite/{user}', [ProjectController::class, 'invite']);
-
+    Route::get('/projects/{project}/remove/{user}', [ProjectController::class, 'remove']);
     // Route::get('/logout', [UserController::class, 'logout']);
 });
 
