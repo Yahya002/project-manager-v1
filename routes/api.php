@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ToDoController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -23,18 +24,20 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('/admin', [UserController::class, 'admin']);
 
 Route::group([
-    'prefix' => '/v1',
+    'prefix' => '/v1/projects',
     'middleware' => 'auth:sanctum'
 ], function(){
 
-    Route::get('/projects', [ProjectController::class, 'index']);
-    Route::post('/projects/create', [ProjectController::class, 'store']);
-    Route::get('/projects/{id}', [ProjectController::class, 'show']);
-    Route::patch('/projects/{id}', [ProjectController::class, 'update']);
-    Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+    Route::get('/', [ProjectController::class, 'index']);
+    Route::post('/create', [ProjectController::class, 'store']);
+    Route::get('/{id}', [ProjectController::class, 'show']);
+    Route::patch('/{id}', [ProjectController::class, 'update']);
+    Route::delete('/{id}', [ProjectController::class, 'destroy']);
 
-    Route::get('/projects/{project}/invite/{user}', [ProjectController::class, 'invite']);
-    Route::get('/projects/{project}/remove/{user}', [ProjectController::class, 'remove']);
+    Route::get('/{project}/invite/{user}', [ProjectController::class, 'invite']);
+    Route::get('/{project}/remove/{user}', [ProjectController::class, 'remove']);
+
+    Route::post('/{project}/todos/create', [ToDoController::class, 'store']);
     // Route::get('/logout', [UserController::class, 'logout']);
 });
 

@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('containables', function (Blueprint $table) {
-            $table->bigInteger('project_id');
-            $table->bigInteger('containable_id');
-            $table->string('containable_type');
-            $table->integer('privilege');
+        Schema::create('project_user', function (Blueprint $table) {
+            $table->foreignId('project_id')->references('id')->on('projects');
+            $table->foreignId('user_id')->references('id')->on('users');
+            $table->integer('user_rank');
         });
     }
 
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('containables');
+        Schema::dropIfExists('project_user');
     }
 };

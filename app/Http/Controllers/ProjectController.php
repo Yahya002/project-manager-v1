@@ -23,26 +23,22 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        Auth::user()->projects()->attach(Project::create($request->only('name')), ['privilege' => 2]);
+        Auth::user()->projects()->attach(Project::create($request->only('name')), ['user_rank' => 2]);
     }
 
     public function show(int $id)
     {
         $user = Auth::user();
-        if ($user->token_name == "admin-token"){
-            $project = Project::findOrFail($id);
-            return ProjectResource::create($project);
-        }
         $project = $user->projects()->find($id);
-
-        return ProjectResource::create($project);
+        // return ProjectResource::create($project);
+        return new ProjectResource($project);
     }
 
     public function update(Request $request, string $id)
     {
         $user = Auth::user();
         $project = $user->projects()->find($id);
-        if($project->pivot->privilege == 2){
+        if($project->pivot->user_rank == 2){
             $project->name = $request->name;
             $project->save();
         }
@@ -55,7 +51,7 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         $project = $user->projects()->find($id);
-        if($project->pivot->privilege == 2){
+        if($project->pivot->user_rank == 2){
             $project->delete();
         }
         else {
@@ -69,9 +65,9 @@ class ProjectController extends Controller
         $user = Auth::user();
         $project = $user->projects($project)->first();
 
-        if($project->pivot->privilege == 2){
+        if($project->pivot->user_rank == 2){
             $invited_user = User::findOrFail($invited_user_id);
-            $invited_user->projects()->attach($project, ['privilege' => 1]);
+            $invited_user->projects()->attach($project, ['user_rank' => 1]);
         }
         else {
             return 'unauthorised';
@@ -83,10 +79,10 @@ class ProjectController extends Controller
         $project = $user->projects($project)->first();
         $removed_user = User::findOrFail($removed_user_id);
 
-        $removerPrivilege = $project->pivot->privilege;
-        $removedPrivilege = $removed_user->projects($project)->first()->pivot->privilege;
+        $removeruser_rank = $project->pivot->user_rank;
+        $removeduser_rank = $removed_user->projects($project)->first()->pivot->user_rank;
 
-        if ($removerPrivilege >= $removedPrivilege){
+        if ($removeruser_rank > $removeduser_rank){
             $removed_user->projects()->detach($project);
         }
         else {

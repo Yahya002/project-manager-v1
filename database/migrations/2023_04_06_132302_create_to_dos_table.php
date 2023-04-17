@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('to_dos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('project_id')->references('id')->on('projects');
             $table->string("description");
             $table->timestamps();
         });

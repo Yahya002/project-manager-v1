@@ -43,6 +43,6 @@ class User extends Authenticatable
     ];
 
     public function projects(){
-        return $this->morphToMany(Project::class, 'containable')->withPivot(['privilege']);
+        return $this->belongsToMany(Project::class, 'project_user')->withPivot(['user_rank']);
     }
 }

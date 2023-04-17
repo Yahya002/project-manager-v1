@@ -10,10 +10,11 @@ class ToDo extends Model
     use HasFactory;
 
     protected $fillable = [
-        'description'
+        'description',
+        'project_id',
     ];
 
     public function projects(){
-        return $this->morphMany(Project::class, 'containable');
+        return $this->belongsTo(Project::class);
     }
 }
