@@ -30,7 +30,6 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         $project = $user->projects()->find($id);
-        // return ProjectResource::create($project);
         return new ProjectResource($project);
     }
 
@@ -47,6 +46,7 @@ class ProjectController extends Controller
         }
     }
 
+    // this one doesn't work
     public function destroy(string $id)
     {
         $user = Auth::user();
@@ -61,32 +61,60 @@ class ProjectController extends Controller
 
     // Shared Projects
 
-    public function invite(int $project, int $invited_user_id){
+    public function invite(int $project_id, int $invited_user_id){
         $user = Auth::user();
-        $project = $user->projects($project)->first();
-
-        if($project->pivot->user_rank == 2){
-            $invited_user = User::findOrFail($invited_user_id);
-            $invited_user->projects()->attach($project, ['user_rank' => 1]);
+        if ($this->has_user($project_id, $invited_user_id)){
+            return 'user already in project';
         }
-        else {
-            return 'unauthorised';
+        else if ($this->has_user($project_id, $invited_user_id) == false){
+            $project = $user->projects($project_id)->first();
+
+            if($project->pivot->user_rank == 2){
+
+                $invited_user = User::findOrFail($invited_user_id);
+                $invited_user->projects()->attach($project, ['user_rank' => 1]);
+
+                return 'user invited';
+            }
+            else {
+                return 'unauthorised';
+            }
         }
     }
 
-    public function remove(int $project, int $removed_user_id){
+    public function remove(int $project_id, int $removed_user_id){
         $user = Auth::user();
-        $project = $user->projects($project)->first();
-        $removed_user = User::findOrFail($removed_user_id);
 
-        $removeruser_rank = $project->pivot->user_rank;
-        $removeduser_rank = $removed_user->projects($project)->first()->pivot->user_rank;
+        if ($this->has_user($project_id, $removed_user_id)){
+            $project = $user->projects($project_id)->first();
+            $removed_user = User::findOrFail($removed_user_id);
 
-        if ($removeruser_rank > $removeduser_rank){
-            $removed_user->projects()->detach($project);
+            $remover_user_rank = $project->pivot->user_rank;
+            $removed_user_rank = $removed_user->projects($project)->first()->pivot->user_rank;
+
+            if ($remover_user_rank > $removed_user_rank){
+                $removed_user->projects()->detach($project);
+                return 'user removed';
+            }
+            else {
+                return 'unauthorised';
+            }
         }
-        else {
-            return 'unauthorised';
+
+        return 'user not found';
+    }
+
+    // custom functions
+    
+    private function has_user(int $project_id, int $user_id){
+        $project = Project::findOrFail($project_id);
+
+        $users = $project->users;
+        foreach ($users as $user){
+            if ($user->id == $user_id){
+                return true;
+            }
         }
+        return false;
     }
 }

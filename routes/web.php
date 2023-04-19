@@ -15,6 +15,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+// Route::get('/logout', [UserController::class, 'logout']);
+
+// Route::group([
+//     'middleware' => 'guest',
+// ], function(){
+//     Route::post('/register', [UserController::class, 'register']);
+//     Route::post('/login', [UserController::class, 'login']);
+// });
+
 // test purposes
 Route::get('/csrf', function (Request $request) {
     $token = $request->session()->token();
