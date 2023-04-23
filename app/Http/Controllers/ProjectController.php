@@ -23,13 +23,19 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        Auth::user()->projects()->attach(Project::create($request->only('name')), ['user_rank' => 2]);
+        $user = Auth::user();
+        $project = Project::create($request->only('name'));
+        $user->projects()->attach($project, ['user_rank' => 2]);
+        return new ProjectResource($project);
     }
 
     public function show(int $id)
     {
         $user = Auth::user();
         $project = $user->projects()->find($id);
+        if ($project == null){
+            return 'project not found';
+        }
         return new ProjectResource($project);
     }
 
@@ -37,22 +43,33 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         $project = $user->projects()->find($id);
+        if ($project == null){
+            return 'project not found';
+        }
         if($project->pivot->user_rank == 2){
             $project->name = $request->name;
             $project->save();
+            return new ProjectResource($project);
         }
         else {
             return 'unauthorised';
         }
     }
 
-    // this one doesn't work
     public function destroy(string $id)
     {
         $user = Auth::user();
         $project = $user->projects()->find($id);
         if($project->pivot->user_rank == 2){
+
+            foreach ($project->todos as $todo){
+                $todo->delete();
+            }
+
+            $project->users()->detach();
+            
             $project->delete();
+            return 'project deleted';
         }
         else {
             return 'unauthorised';

@@ -27,15 +27,29 @@ Route::group([
 ], function(){
 
     Route::get('/', [ProjectController::class, 'index']);
-    Route::post('/create', [ProjectController::class, 'store']);
-    Route::get('/{id}', [ProjectController::class, 'show']);
-    Route::patch('/{id}', [ProjectController::class, 'update']);
-    Route::delete('/{id}', [ProjectController::class, 'destroy']);
+    Route::get('/{project}', [ProjectController::class, 'show']);
+    Route::post('/', [ProjectController::class, 'store']);
+    Route::patch('/{project}', [ProjectController::class, 'update']);
+    Route::delete('/{project}', [ProjectController::class, 'destroy']);
 
     Route::get('/{project}/invite/{user}', [ProjectController::class, 'invite']);
     Route::get('/{project}/remove/{user}', [ProjectController::class, 'remove']);
 
-    Route::post('/{project}/todos/create', [ToDoController::class, 'store']);
-    Route::post('/{project}/todos/edit', [ToDoController::class, 'update']);
-    
+    Route::group([
+        'prefix' => '/{project}/todos'
+    ],function (){
+        Route::get('/', [ToDoController::class, 'index']);
+        Route::get('/{todo}', [ToDoController::class, 'show']);
+        Route::post('/', [ToDoController::class, 'store']);
+        Route::patch('/{todo}', [ToDoController::class, 'update']);
+        Route::delete('/{todo}', [ToDoController::class, 'index']);
+    });
+});
+
+Route::group([
+    'middleware' => 'guest',
+    'prefix' => '/v1',
+], function(){
+    Route::post('/register', [UserController::class, 'register']);
+    Route::post('/login', [UserController::class, 'login']);
 });
